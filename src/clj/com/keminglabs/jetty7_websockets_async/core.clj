@@ -9,7 +9,6 @@
   (proxy [WebSocketHandler] []
     (doWebSocketConnect [request response]
       (let [send (send-thunk) recv (recv-thunk)]
-        ;;TODO: turn this into a reify?
         (proxy [WebSocket WebSocket$OnTextMessage] []
           (onOpen [conn]
             (>!! connection-chan {:uri (.getRequestURI request)
