@@ -17,7 +17,7 @@
   
   :plugins [[lein-cljsbuild "0.3.2"]]
   :cljsbuild {:builds
-              [{:source-paths ["src/cljs"]
+              [{:source-paths ["example/src/cljs"]
                 :compiler {:output-to "example/public/example.js"
                            :pretty-print true
                            :optimizations :whitespace}}]})
