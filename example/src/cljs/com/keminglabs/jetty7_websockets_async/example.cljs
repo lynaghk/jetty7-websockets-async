@@ -5,11 +5,15 @@
              :refer [<! >! chan close! put! take! sliding-buffer
                      dropping-buffer timeout]]
             goog.net.WebSocket))
-(p "hihi")
+
+(def host
+  (aget js/window "location" "host"))
+
 (let [socket (goog.net.WebSocket.)]
 
-  (.open socket (str "ws://" (get-in js/window [:location :host]) "/"))
+  (.open socket (str "ws://" host "/"))
   (.addEventListener socket goog.net.WebSocket.EventType.MESSAGE
                      (fn [e]
                        (p e)
-                       (.send socket "yo"))))
+                       (.send socket "sup?")
+                       (.send socket "yeah."))))

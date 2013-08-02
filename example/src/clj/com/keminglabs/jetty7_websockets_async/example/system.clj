@@ -6,13 +6,16 @@
 
 (defn system
   []
-  {:conn-chan (chan)})
+  {:connection-chan (chan)})
 
 (defn start! [system]
+
+  (core/register-ws-app! (system :connection-chan))
+  
   (assoc system
     :server (run-jetty core/app
                        {:join? false :port 8080
-                        :configurator (ws/configurator (system :conn-chan))})))
+                        :configurator (ws/configurator (system :connection-chan))})))
 
 
 (defn stop! [system]
