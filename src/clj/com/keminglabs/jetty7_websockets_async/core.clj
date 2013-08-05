@@ -9,7 +9,7 @@
   (proxy [WebSocketHandler] []
     (doWebSocketConnect [request response]
       (let [send (send-thunk) recv (recv-thunk)]
-        (proxy [WebSocket WebSocket$OnTextMessage] []
+        (proxy [WebSocket$OnTextMessage] []
           (onOpen [conn]
             (>!! connection-chan {:uri (.getRequestURI request)
                                   :conn conn :send send :recv recv})
