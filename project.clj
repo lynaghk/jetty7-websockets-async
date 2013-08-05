@@ -14,6 +14,7 @@
                                   [midje "1.5.1"]]}}
   
   :source-paths ["src/clj" "src/cljs"]
+  :test-paths ["test/clj"]
   
   :plugins [[lein-cljsbuild "0.3.2"]]
   :cljsbuild {:builds
