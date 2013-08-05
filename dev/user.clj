@@ -39,4 +39,33 @@
   (clojure.tools.namespace.repl/refresh)
   (reset)
 
+
+
+  (require '[com.keminglabs.jetty7-websockets-async.core :refer [configurator]]
+           '[clojure.core.async :refer [chan go >! <!]]
+           '[ring.adapter.jetty :refer [run-jetty]])
+
+  (defn http-handler
+    [req]
+    {:response 200 :body "HTTP hello" :headers {}})
+
+  (def c (chan))
+
+  (def ws-configurator
+    (configurator c))
+
+  (def server
+    (run-jetty http-handler {:configurator ws-configurator
+                             :port 8090, :join? false}))
+
+  (go (loop []
+        (let [ws-req (<! c)]
+          (>! (:send ws-req) "Hello new websocket client!")
+          (recur))))
+
+
+
+
+
+
   )
