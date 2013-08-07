@@ -38,6 +38,9 @@ See the [in-depth example](example/) for fancy core.match message dispatch and a
         (recur))))
 ```
 
-## Architecture
+
+## Server
+
+## Client
 
 ## Thanks
