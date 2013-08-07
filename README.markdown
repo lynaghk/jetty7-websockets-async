@@ -1,18 +1,20 @@
 # Jetty 7 websockets async
 
 Did you know that your familiar friend Jetty 7 (of [ring-jetty-adapter](https://github.com/ring-clojure/ring/tree/master/ring-jetty-adapter) fame) can talk websockets?
-
 This library provides a Jetty 7 configurator that exposes websockets as core.async channels.
 
+[Install](#install) | [Server quick-start](#server-quick-start) | [Client quick-start](#client-quick-start) | [Example app](/example) | [Thanks!](#thanks)
 
-## Quick start
+## Install
 
 Add to your `project.clj`:
 
     [com.keminglabs/jetty7-websockets-async "0.1.0-SNAPSHOT"]
-    
-Here's a small example of getting goin' with ring.
+
 See the [in-depth example](example/) for fancy core.match message dispatch and a core.async client in ClojureScript.
+
+
+## Server quick start
 
 ```clojure
 (require '[com.keminglabs.jetty7-websockets-async.core :refer [configurator]]
@@ -38,9 +40,22 @@ See the [in-depth example](example/) for fancy core.match message dispatch and a
         (recur))))
 ```
 
+## Client quick start
 
-## Server
+```clojure
+(require '[com.keminglabs.jetty7-websockets-async.core :refer [connect!]]
+         '[clojure.core.async :refer [chan go >! <!]])
 
-## Client
+(def c (chan))
+
+(connect! c "ws://remote-server")
+
+(go (loop []
+      (let [ws-req (<! c)]
+        (>! (:send ws-req) "Hello remote websocket server!")
+        (recur))))
+```
 
 ## Thanks
+
+[Zach Allaun](https://github.com/zachallaun) for suggesting that the websocket server and client code could be handled symmetrically.
