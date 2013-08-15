@@ -70,6 +70,7 @@ Accepts the following options:
 
 (defn configurator
   "Returns a Jetty configurator that configures server to listen for websocket connections and put request maps on `connection-chan`.
+
 Request maps contain following keys:
 
   :uri  - the string URI on which the connection was made
@@ -79,21 +80,22 @@ Request maps contain following keys:
 
 Accepts the following options:
 
-  :send - a zero-arg function called to create the :send port for each new websocket connection
-  :recv - a zero-arg function called to create the :recv port for each new websocket connection
+  :path - the string path at which the server should listen for websocket connections (default: \"/\")
+  :send - a zero-arg function called to create the :send port for each new websocket connection (default: a non-blocking dropping channel)
+  :recv - a zero-arg function called to create the :recv port for each new websocket connection (default: a non-blocking dropping channel)
 "
   ([connection-chan]
-     (configurator connection-chan {:send default-chan :recv default-chan}))
-  ([connection-chan options]
+     (configurator connection-chan {}))
+  ([connection-chan {:keys [send recv path]
+                     :or {send default-chan, recv default-chan, path "/"}}]
      (fn [server]
-       (let [ws-handler (handler connection-chan (:send options) (:recv options))
+       (let [ws-handler (handler connection-chan send recv)
              existing-handler (.getHandler server)
              contexts (doto (ContextHandlerCollection.)
-                        (.setHandlers (into-array [(doto (ContextHandler.)
-                                                     (.setContextPath "/") ;;TODO: make route(s) configurable
+                        (.setHandlers (into-array [(doto (ContextHandler. path)
+                                                     (.setAllowNullPathInfo true)
                                                      (.setHandler ws-handler))
 
-                                                   (doto (ContextHandler.)
-                                                     (.setContextPath "/")
+                                                   (doto (ContextHandler. "/")
                                                      (.setHandler existing-handler))])))]
          (.setHandler server contexts)))))
