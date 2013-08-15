@@ -48,15 +48,16 @@ Request maps contain following keys:
 
 Accepts the following options:
 
-  :send - a zero-arg function called to create the :send port for each new websocket connection
-  :recv - a zero-arg function called to create the :recv port for each new websocket connection"
-
+  :send - a zero-arg function called to create the :send port for each new websocket connection (default: a non-blocking dropping channel)
+  :recv - a zero-arg function called to create the :recv port for each new websocket connection (default: a non-blocking dropping channel)
+"
   ([connection-chan url]
-     (connect! connection-chan url {:send default-chan :recv default-chan}))
-  ([connection-chan url options]
+     (connect! connection-chan url {}))
+  ([connection-chan url {:keys [send recv]
+                         :or {send default-chan, recv default-chan}}]
      (.open (.newWebSocketClient ws-client-factory)
             (URI. url)
-            (->WebSocket$OnTextMessage connection-chan url ((:send options)) ((:recv options))))))
+            (->WebSocket$OnTextMessage connection-chan url (send) (recv)))))
 
 ;;;;;;;;;;;;;;;;;;
 ;;WebSocket server
