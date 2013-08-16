@@ -28,7 +28,7 @@ See the [in-depth example](example/) for fancy core.match message dispatch and a
 (def c (chan))
 
 (def ws-configurator
-  (configurator c))
+  (configurator c {:path "/"}))
 
 (def server
   (run-jetty http-handler {:configurator ws-configurator

@@ -24,7 +24,8 @@ Why is this not in core.async, yo?"
 (fact "Websocket server"
   (with-state-changes [(around :facts
                                (let [new-connections (chan)
-                                     server (run-jetty nil {:configurator (configurator new-connections)
+                                     ctx-path "/ws"
+                                     server (run-jetty nil {:configurator (configurator new-connections {:path ctx-path})
                                                             :port test-port :join? false})
                                      client (.newWebSocketClient ws-client-factory)]
 
@@ -35,10 +36,12 @@ Why is this not in core.async, yo?"
 
     (fact "New websocket connections are put onto the channel"
       (<!! new-connections 0 :empty) => :empty
-      (.open client (URI. (str "ws://localhost:" test-port))
-             (proxy [WebSocket] []))
+      (.open client (URI. (str "ws://localhost:" test-port ctx-path))
+             (proxy [WebSocket] []
+               (onOpen [_])
+               (onClose [_ _])))
       (let [{:keys [conn send recv uri]} (<!! new-connections 100 :fail)]
-        uri => "/"
+        uri => ctx-path
         conn => #(instance? org.eclipse.jetty.websocket.WebSocket$Connection %)
         send => #(satisfies? clojure.core.async.impl.protocols/WritePort %)
         recv => #(satisfies? clojure.core.async.impl.protocols/ReadPort %)))
@@ -46,7 +49,7 @@ Why is this not in core.async, yo?"
     (fact "Send to client"
       (let [received-messages (chan)]
 
-        (.open client (URI. (str "ws://localhost:" test-port))
+        (.open client (URI. (str "ws://localhost:" test-port ctx-path))
                (proxy [WebSocket$OnTextMessage] []
                  (onOpen [conn])
                  (onClose [close-code msg])
@@ -61,7 +64,7 @@ Why is this not in core.async, yo?"
 
     (fact "Receive from client"
       (let [test-message "test-message"]
-        (.open client (URI. (str "ws://localhost:" test-port))
+        (.open client (URI. (str "ws://localhost:" test-port ctx-path))
                (proxy [WebSocket$OnTextMessage] []
                  (onOpen [conn]
                    (.sendMessage conn test-message))
