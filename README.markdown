@@ -36,7 +36,7 @@ See the [in-depth example](example/) for fancy core.match message dispatch and a
 
 (go (loop []
       (let [ws-req (<! c)]
-        (>! (:send ws-req) "Hello new websocket client!")
+        (>! (:in ws-req) "Hello new websocket client!")
         (recur))))
 ```
 
@@ -52,7 +52,7 @@ See the [in-depth example](example/) for fancy core.match message dispatch and a
 
 (go (loop []
       (let [ws-req (<! c)]
-        (>! (:send ws-req) "Hello remote websocket server!")
+        (>! (:in ws-req) "Hello remote websocket server!")
         (recur))))
 ```
 

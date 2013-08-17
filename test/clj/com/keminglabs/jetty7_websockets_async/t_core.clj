@@ -40,11 +40,11 @@ Why is this not in core.async, yo?"
              (proxy [WebSocket] []
                (onOpen [_])
                (onClose [_ _])))
-      (let [{:keys [conn send recv uri]} (<!! new-connections 100 :fail)]
+      (let [{:keys [conn in out uri]} (<!! new-connections 100 :fail)]
         uri => ctx-path
         conn => #(instance? org.eclipse.jetty.websocket.WebSocket$Connection %)
-        send => #(satisfies? clojure.core.async.impl.protocols/WritePort %)
-        recv => #(satisfies? clojure.core.async.impl.protocols/ReadPort %)))
+        in => #(satisfies? clojure.core.async.impl.protocols/WritePort %)
+        out => #(satisfies? clojure.core.async.impl.protocols/ReadPort %)))
 
     (fact "Send to client"
       (let [received-messages (chan)]
@@ -57,8 +57,8 @@ Why is this not in core.async, yo?"
                    (>!! received-messages msg))))
 
         (let [test-message "test-message"
-              {:keys [send]} (<!! new-connections 100 :fail)]
-          (>!! send test-message)
+              {:keys [in]} (<!! new-connections 100 :fail)]
+          (>!! in test-message)
           (<!! received-messages 100 :fail) => test-message)))
 
 
@@ -71,8 +71,8 @@ Why is this not in core.async, yo?"
                  (onClose [close-code msg])
                  (onMessage [msg])))
 
-        (let [{:keys [recv]} (<!! new-connections 100 :fail)]
-          (<!! recv 100 :fail) => test-message)))))
+        (let [{:keys [out]} (<!! new-connections 100 :fail)]
+          (<!! out 100 :fail) => test-message)))))
 
 
 
@@ -83,8 +83,8 @@ Why is this not in core.async, yo?"
                                                             :port test-port :join? false})]
 
                                  (go ;;echo first message back to client
-                                   (let [{:keys [send recv]} (<! server-new-connections)]
-                                     (>! send (<! recv))))
+                                   (let [{:keys [in out]} (<! server-new-connections)]
+                                     (>! in (<! out))))
 
                                  (try
                                    (let [echo-url (str "ws://localhost:" test-port)
@@ -97,15 +97,15 @@ Why is this not in core.async, yo?"
     (fact "New websocket connections are put onto the channel"
       (<!! new-connections 0 :empty) => :empty
       (connect! new-connections echo-url)
-      (let [{:keys [conn send recv uri]} (<!! new-connections 100 :fail)]
+      (let [{:keys [conn in out uri]} (<!! new-connections 100 :fail)]
         uri => echo-url
         conn => #(instance? org.eclipse.jetty.websocket.WebSocket$Connection %)
-        send => #(satisfies? clojure.core.async.impl.protocols/WritePort %)
-        recv => #(satisfies? clojure.core.async.impl.protocols/ReadPort %)))
+        in => #(satisfies? clojure.core.async.impl.protocols/WritePort %)
+        out => #(satisfies? clojure.core.async.impl.protocols/ReadPort %)))
 
     (fact "Echo"
       (connect! new-connections echo-url)
       (let [test-message "test-message"
-            {:keys [send recv]} (<!! new-connections 100 :fail)]
-        (>!! send test-message)
-        (<!! recv 100 :fail) => test-message))))
+            {:keys [in out]} (<!! new-connections 100 :fail)]
+        (>!! in test-message)
+        (<!! out 100 :fail) => test-message))))

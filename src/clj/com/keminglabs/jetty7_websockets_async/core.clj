@@ -9,24 +9,24 @@
   (chan (dropping-buffer 137)))
 
 (defn ->WebSocket$OnTextMessage
-  [connection-chan uri send recv]
+  [connection-chan uri in out]
   (proxy [WebSocket$OnTextMessage] []
     (onOpen [conn]
-      (>!! connection-chan {:uri uri :conn conn :send send :recv recv})
+      (>!! connection-chan {:uri uri :conn conn :in in :out out})
       (go (loop []
-            (let [^String msg (<! send)]
+            (let [^String msg (<! in)]
               (if (nil? msg)
                 (do
-                  (close! recv)
+                  (close! out)
                   (.close conn))
                 (do
                   (.sendMessage conn msg)
                   (recur)))))))
     (onMessage [msg]
-      (>!! recv msg))
+      (>!! out msg))
     (onClose [close-code msg]
-      (close! send)
-      (close! recv))))
+      (close! in)
+      (close! out))))
 
 
 ;;;;;;;;;;;;;;;;;;
@@ -43,31 +43,31 @@ Request maps contain following keys:
 
   :uri  - the string URI on which the connection was made
   :conn - the underlying Jetty7 websocket connection (see: http://download.eclipse.org/jetty/stable-7/apidocs/org/eclipse/jetty/websocket/WebSocket.Connection.html)
-  :send - a core.async port where you can put string messages
-  :recv - a core.async port whence string messages
+  :in   - a core.async port where you can put string messages
+  :out  - a core.async port whence string messages
 
 Accepts the following options:
 
-  :send - a zero-arg function called to create the :send port for each new websocket connection (default: a non-blocking dropping channel)
-  :recv - a zero-arg function called to create the :recv port for each new websocket connection (default: a non-blocking dropping channel)
+  :in   - a zero-arg function called to create the :in port for each new websocket connection (default: a non-blocking dropping channel)
+  :out  - a zero-arg function called to create the :out port for each new websocket connection (default: a non-blocking dropping channel)
 "
   ([connection-chan url]
      (connect! connection-chan url {}))
-  ([connection-chan url {:keys [send recv]
-                         :or {send default-chan, recv default-chan}}]
+  ([connection-chan url {:keys [in out]
+                         :or {in default-chan, out default-chan}}]
      (.open (.newWebSocketClient ws-client-factory)
             (URI. url)
-            (->WebSocket$OnTextMessage connection-chan url (send) (recv)))))
+            (->WebSocket$OnTextMessage connection-chan url (in) (out)))))
 
 ;;;;;;;;;;;;;;;;;;
 ;;WebSocket server
 
 (defn handler
-  [connection-chan send-thunk recv-thunk]
+  [connection-chan in-thunk out-thunk]
   (proxy [WebSocketHandler] []
     (doWebSocketConnect [request response]
-      (let [send (send-thunk) recv (recv-thunk)]
-        (->WebSocket$OnTextMessage connection-chan (.getRequestURI request) send recv)))))
+      (let [in (in-thunk) out (out-thunk)]
+        (->WebSocket$OnTextMessage connection-chan (.getRequestURI request) in out)))))
 
 (defn configurator
   "Returns a Jetty configurator that configures server to listen for websocket connections and put request maps on `connection-chan`.
@@ -76,21 +76,21 @@ Request maps contain following keys:
 
   :uri  - the string URI on which the connection was made
   :conn - the underlying Jetty7 websocket connection (see: http://download.eclipse.org/jetty/stable-7/apidocs/org/eclipse/jetty/websocket/WebSocket.Connection.html)
-  :send - a core.async port where you can put string messages
-  :recv - a core.async port whence string messages
+  :in   - a core.async port where you can put string messages
+  :out  - a core.async port whence string messages
 
 Accepts the following options:
 
   :path - the string path at which the server should listen for websocket connections (default: \"/\")
-  :send - a zero-arg function called to create the :send port for each new websocket connection (default: a non-blocking dropping channel)
-  :recv - a zero-arg function called to create the :recv port for each new websocket connection (default: a non-blocking dropping channel)
+  :in   - a zero-arg function called to create the :in port for each new websocket connection (default: a non-blocking dropping channel)
+  :out  - a zero-arg function called to create the :out port for each new websocket connection (default: a non-blocking dropping channel)
 "
   ([connection-chan]
      (configurator connection-chan {}))
-  ([connection-chan {:keys [send recv path]
-                     :or {send default-chan, recv default-chan, path "/"}}]
+  ([connection-chan {:keys [in out path]
+                     :or {in default-chan, out default-chan, path "/"}}]
      (fn [server]
-       (let [ws-handler (handler connection-chan send recv)
+       (let [ws-handler (handler connection-chan in out)
              existing-handler (.getHandler server)
              contexts (doto (ContextHandlerCollection.)
                         (.setHandlers (into-array [(doto (ContextHandler. path)
