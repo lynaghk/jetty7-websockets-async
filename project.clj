@@ -1,5 +1,6 @@
 (defproject com.keminglabs/jetty7-websockets-async "0.1.0-SNAPSHOT"
   :description "Clojure core.async interface to Jetty7's websockets"
+  :url "https://github.com/lynaghk/jetty7-websockets-async"
   :license {:name "BSD" :url "http://www.opensource.org/licenses/BSD-3-Clause"}
   
   :dependencies [[org.clojure/clojure "1.5.1"]
