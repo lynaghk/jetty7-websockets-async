@@ -14,10 +14,10 @@
   (go
     (while true
       (match [(<! conn-chan)]
-        [{:uri uri :send send :recv recv}]
+        [{:uri uri :in in :out out}]
         (go
-          (>! send "Yo")
+          (>! in "Yo")
           (loop []
-            (when-let [msg (<! recv)]
+            (when-let [msg (<! out)]
               (prn msg)
               (recur))))))))
