@@ -33,8 +33,7 @@
 ;;WebSocket client
 
 (def ws-client-factory
-  (doto (WebSocketClientFactory.)
-    (.start)))
+  (WebSocketClientFactory.))
 
 ;;TODO: how to prevent docstring duplication?
 (defn connect!
@@ -55,6 +54,12 @@ Accepts the following options:
      (connect! connection-chan url {}))
   ([connection-chan url {:keys [in out]
                          :or {in default-chan, out default-chan}}]
+
+     ;;Start WebSocket client factory on first `connect!` call.
+     (when-not (or (.isStarted ws-client-factory)
+                   (.isStarting ws-client-factory))
+       (.start ws-client-factory))
+
      (.open (.newWebSocketClient ws-client-factory)
             (URI. url)
             (->WebSocket$OnTextMessage connection-chan url (in) (out)))))
