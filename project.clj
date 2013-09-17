@@ -13,6 +13,7 @@
 
   :profiles {:dev {:source-paths ["dev" "example/src/clj"]
                    :dependencies [[ring/ring-jetty-adapter "1.2.0"]
+                                  [ring/ring-servlet "1.2.0"]
                                   [compojure "1.1.5" :exclusions [ring/ring-core]]
                                   [org.clojure/core.match "0.2.0-rc5"]
                                   [midje "1.5.1"]]}}
