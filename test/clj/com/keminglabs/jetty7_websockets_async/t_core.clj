@@ -99,7 +99,6 @@ Why is this not in core.async, yo?"
       (<!! new-connections 0 :empty) => :empty
       (connect! new-connections echo-url)
       (let [{:keys [conn in out uri] :as a} (<!! new-connections 100 :fail)]
-        (println a)
         uri => echo-url
         conn => #(instance? org.eclipse.jetty.websocket.WebSocket$Connection %)
         in => #(satisfies? clojure.core.async.impl.protocols/WritePort %)

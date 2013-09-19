@@ -40,18 +40,18 @@
 ;;TODO: how to prevent docstring duplication?
 (defn connect!
   "Tries to connect to websocket at `url`; if sucessful, places a request map on `connection-chan`.
-  Request maps contain following keys:
+Request maps contain following keys:
 
   :uri  - the string URI on which the connection was made
   :conn - the underlying Jetty7 websocket connection (see: http://download.eclipse.org/jetty/stable-7/apidocs/org/eclipse/jetty/websocket/WebSocket.Connection.html)
   :in   - a core.async port where you can put string messages
   :out  - a core.async port whence string messages
 
-  Accepts the following options:
+Accepts the following options:
 
   :in   - a zero-arg function called to create the :in port for each new websocket connection (default: a non-blocking dropping channel)
   :out  - a zero-arg function called to create the :out port for each new websocket connection (default: a non-blocking dropping channel)
-  "
+"
   ([connection-chan url]
    (connect! connection-chan url {}))
   ([connection-chan url {:keys [in out]
