@@ -4,7 +4,7 @@
   :license {:name "BSD" :url "http://www.opensource.org/licenses/BSD-3-Clause"}
   
   :dependencies [[org.clojure/clojure "1.5.1"]
-                 [org.clojure/core.async "0.1.0-SNAPSHOT"]
+                 [org.clojure/core.async "0.1.222.0-83d0c2-alpha"]
                  [org.eclipse.jetty/jetty-server "7.6.8.v20121106"]
                  [org.eclipse.jetty/jetty-websocket "7.6.8.v20121106"]]
 
