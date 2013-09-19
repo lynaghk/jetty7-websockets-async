@@ -14,7 +14,7 @@
   (go
     (while true
       (match [(<! conn-chan)]
-        [{:uri uri :send send :recv recv}]
+        [{:request request :send send :recv recv}]
         (go
           (>! send "Yo")
           (loop []
