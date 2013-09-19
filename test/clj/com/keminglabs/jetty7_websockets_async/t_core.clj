@@ -21,6 +21,10 @@ Why is this not in core.async, yo?"
 (def test-port
   8090)
 
+(when-not (or (.isStarted ws-client-factory)
+              (.isStarting ws-client-factory))
+  (.start ws-client-factory))
+
 (fact "Websocket server"
   (with-state-changes [(around :facts
                                (let [new-connections (chan)
