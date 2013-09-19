@@ -9,7 +9,7 @@ This library provides a Jetty 7 configurator that exposes websockets as core.asy
 
 Add to your `project.clj`:
 
-    [com.keminglabs/jetty7-websockets-async "0.1.0-SNAPSHOT"]
+    [com.keminglabs/jetty7-websockets-async "0.1.0"]
 
 See the [in-depth example](example/) for fancy core.match message dispatch and a core.async client in ClojureScript.
 
