@@ -14,7 +14,7 @@
   (go
     (while true
       (match [(<! conn-chan)]
-        [{:uri uri :in in :out out}]
+        [{:request request :in in :out out}]
         (go
           (>! in "Yo")
           (loop []

@@ -40,8 +40,9 @@ Why is this not in core.async, yo?"
              (proxy [WebSocket] []
                (onOpen [_])
                (onClose [_ _])))
-      (let [{:keys [conn in out uri]} (<!! new-connections 100 :fail)]
-        uri => ctx-path
+      (let [{:keys [conn in out request]} (<!! new-connections 100 :fail)]
+        request => map?
+        request => (contains {:uri ctx-path})
         conn => #(instance? org.eclipse.jetty.websocket.WebSocket$Connection %)
         in => #(satisfies? clojure.core.async.impl.protocols/WritePort %)
         out => #(satisfies? clojure.core.async.impl.protocols/ReadPort %)))
@@ -97,7 +98,7 @@ Why is this not in core.async, yo?"
     (fact "New websocket connections are put onto the channel"
       (<!! new-connections 0 :empty) => :empty
       (connect! new-connections echo-url)
-      (let [{:keys [conn in out uri]} (<!! new-connections 100 :fail)]
+      (let [{:keys [conn in out uri] :as a} (<!! new-connections 100 :fail)]
         uri => echo-url
         conn => #(instance? org.eclipse.jetty.websocket.WebSocket$Connection %)
         in => #(satisfies? clojure.core.async.impl.protocols/WritePort %)
