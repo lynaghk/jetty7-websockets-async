@@ -3,7 +3,7 @@
 Did you know that your familiar friend Jetty 7 (of [ring-jetty-adapter](https://github.com/ring-clojure/ring/tree/master/ring-jetty-adapter) fame) can talk websockets?
 This library provides a Jetty 7 configurator that exposes websockets as core.async channels.
 
-[Install](#install) | [Server quick-start](#server-quick-start) | [Client quick-start](#client-quick-start) | [Example app](/example) | [Thanks!](#thanks)
+[Install](#install) | [Server quick-start](#server-quick-start) | [Client quick-start](#client-quick-start) | [Example app](/example) | [Thanks!](#thanks) | [Similar libraries](#similar-libraries)
 
 ## Install
 
@@ -59,3 +59,8 @@ See the [in-depth example](example/) for fancy core.match message dispatch and a
 ## Thanks
 
 [Zach Allaun](https://github.com/zachallaun) for suggesting that the websocket server and client code could be handled symmetrically.
+
+
+## Similar libraries
+
+Take a look at @ptaoussanis's [Sente](https://github.com/ptaoussanis/sente), which provides channels over WebSockets and Ajax on the [http-kit](https://github.com/http-kit/http-kit) server.
